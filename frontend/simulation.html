@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixTheGap - Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="simulation">
+  <nav>
+    <div class="nav-logo">Fix<span>The</span>Gap</div>
+    <div class="nav-links">
+      <button class="nav-link" data-page="home">Home</button>
+      <button class="nav-link" data-page="simulation">Simulate</button>
+      <button class="nav-link" data-page="awareness">Learn</button>
+      <button class="nav-cta">Start Free -&gt;</button>
+    </div>
+  </nav>
+
+  <div id="simulation">
+    <div class="sim-wrap">
+      <div class="sim-left">
+        <div class="eyebrow">Salary Simulation</div>
+        <h1 class="sim-h1">Find Your True Market Value</h1>
+        <p class="sim-desc">Our model cross-references 2M+ real salaries and reveals exactly how much of a pay gap exists for your role, location, and experience.</p>
+
+        <div class="promise-card">
+          <div class="promise-row"><span class="p-icon">🔒</span><span>Your answers are anonymous and encrypted</span></div>
+          <div class="promise-row"><span class="p-icon">⚡</span><span>Results calculated instantly</span></div>
+          <div class="promise-row"><span class="p-icon">📊</span><span>Based on 2M+ real salary data points</span></div>
+          <div class="promise-row"><span class="p-icon">🎯</span><span>Role, location &amp; experience precision</span></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-title">Tell us about your position</div>
+        <div class="form-grid">
+          <div class="f-field full">
+            <label class="f-label" for="fRole">Job Role</label>
+            <select class="f-select" id="fRole">
+              <option value="">Select your role...</option>
+              <option>Software Engineer</option>
+              <option>Senior Software Engineer</option>
+              <option>Staff Engineer</option>
+              <option>Principal Engineer</option>
+              <option>Product Manager</option>
+              <option>Senior PM</option>
+              <option>Data Scientist</option>
+              <option>ML Engineer</option>
+              <option>UX Designer</option>
+              <option>Engineering Manager</option>
+              <option>Director of Engineering</option>
+              <option>CTO / VP Engineering</option>
+            </select>
+          </div>
+
+          <div class="f-field">
+            <label class="f-label" for="fLocation">Location</label>
+            <select class="f-select" id="fLocation">
+              <option value="">Select city...</option>
+              <option>San Francisco, CA</option>
+              <option>New York, NY</option>
+              <option>Seattle, WA</option>
+              <option>Austin, TX</option>
+              <option>Boston, MA</option>
+              <option>Chicago, IL</option>
+              <option>Los Angeles, CA</option>
+              <option>Denver, CO</option>
+              <option>Remote (US)</option>
+            </select>
+          </div>
+
+          <div class="f-field">
+            <label class="f-label" for="fIndustry">Industry</label>
+            <select class="f-select" id="fIndustry">
+              <option value="">Select industry...</option>
+              <option>Tech / Software</option>
+              <option>Fintech</option>
+              <option>Healthcare Tech</option>
+              <option>E-Commerce</option>
+              <option>Gaming</option>
+              <option>Consulting</option>
+              <option>Media &amp; Entertainment</option>
+              <option>Government / Public Sector</option>
+            </select>
+          </div>
+
+          <div class="f-field full">
+            <label class="f-label" for="fExp">Years of Experience</label>
+            <div class="range-box">
+              <div class="range-disp"><span class="range-big" id="expVal">5</span><span class="range-unit">years</span></div>
+              <input type="range" min="0" max="25" value="5" id="fExp" />
+            </div>
+          </div>
+
+          <div class="f-field full">
+            <label class="f-label" for="fGender">Gender <span class="f-hint">(optional - helps reveal pay gap)</span></label>
+            <select class="f-select" id="fGender">
+              <option value="">Prefer not to say</option>
+              <option>Female</option>
+              <option>Male</option>
+              <option>Non-binary</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" disabled>Calculate My Worth ↗</button>
+        <div class="privacy">🔒 Anonymous &amp; encrypted · Never sold to third parties</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
