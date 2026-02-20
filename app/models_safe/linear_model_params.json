@@ -1,0 +1,13 @@
+{
+  "coef": [
+    4749.999999999999,
+    4749.999999999999,
+    4333.333333333331
+  ],
+  "intercept": 31416.666666666675,
+  "features": [
+    "experience",
+    "role_encoded",
+    "gender_encoded"
+  ]
+}

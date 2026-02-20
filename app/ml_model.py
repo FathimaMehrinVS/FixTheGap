@@ -1,29 +1,45 @@
+import os
+import json
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import LabelEncoder
-import joblib
 
-# Load dataset
-df = pd.read_csv("data/salaries.csv")
+BASE_DIR = os.path.dirname(__file__)
+MODEL_DIR = os.path.join(BASE_DIR, "models_safe")
+DATA_PATH = os.path.normpath(os.path.join(BASE_DIR, "..", "data", "salaries.csv"))
 
-# Encode categorical features
+os.makedirs(MODEL_DIR, exist_ok=True)
+print("Model folder path:", MODEL_DIR)
+print("Dataset path:", DATA_PATH)
+
+df = pd.read_csv(DATA_PATH)
+
 le_gender = LabelEncoder()
-df['gender_encoded'] = le_gender.fit_transform(df['gender'])
+df["gender_encoded"] = le_gender.fit_transform(df["gender"])
 
 le_role = LabelEncoder()
-df['role_encoded'] = le_role.fit_transform(df['role'])
+df["role_encoded"] = le_role.fit_transform(df["role"])
 
-# Select features and target
-X = df[['experience', 'role_encoded', 'gender_encoded']]
-y = df['salary']
+X = df[["experience", "role_encoded", "gender_encoded"]]
+y = df["salary"]
 
-# Train Linear Regression model
 model = LinearRegression()
 model.fit(X, y)
 
-# Save the model and encoders
-joblib.dump(model, "app/model.pkl")
-joblib.dump(le_gender, "app/le_gender.pkl")
-joblib.dump(le_role, "app/le_role.pkl")
+params = {
+    "coef": model.coef_.tolist(),
+    "intercept": float(model.intercept_),
+    "features": list(X.columns),
+}
 
-print("ML model trained and saved successfully.")
+with open(os.path.join(MODEL_DIR, "linear_model_params.json"), "w", encoding="utf-8") as f:
+    json.dump(params, f, indent=2)
+
+with open(os.path.join(MODEL_DIR, "gender_encoder.json"), "w", encoding="utf-8") as f:
+    json.dump({"classes": le_gender.classes_.tolist()}, f, indent=2)
+
+with open(os.path.join(MODEL_DIR, "role_encoder.json"), "w", encoding="utf-8") as f:
+    json.dump({"classes": le_role.classes_.tolist()}, f, indent=2)
+
+print("JSON files saved to:", MODEL_DIR)
+print("Files:", os.listdir(MODEL_DIR))
