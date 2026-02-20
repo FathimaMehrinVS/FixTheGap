@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixTheGap - Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="home">
+  <nav>
+    <div class="nav-logo">Fix<span>The</span>Gap</div>
+    <div class="nav-links">
+      <button class="nav-link" data-page="home">Home</button>
+      <button class="nav-link" data-page="simulation">Simulate</button>
+      <button class="nav-link" data-page="awareness">Learn</button>
+      <button class="nav-cta">Start Free -&gt;</button>
+    </div>
+  </nav>
+
+  <div id="home">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Salary Intelligence Platform</div>
+        <h1 class="hero-h1">Know.<br><em>Act.<br></em>Transform.</em></h1>
+        <p class="hero-tagline">Know your worth. See the gap. Close the future.</p>
+        <p class="hero-desc">Empowering women in tech through salary transparency.</p>
+        <div class="hero-btns">
+          <button class="btn-rose" onclick="goTo('simulation')">Start Free Simulation -&gt;</button>
+          <button class="btn-outline" onclick="goTo('awareness')">Learn About Pay Gap</button>
+        </div>
+        <div class="trust-row">
+          <div><div class="trust-num">18%</div><div class="trust-lbl">Avg gender pay gap in tech</div></div>
+          <div class="trust-div"></div>
+          <div><div class="trust-num">2M+</div><div class="trust-lbl">Salary data points analyzed</div></div>
+          <div class="trust-div"></div>
+          <div><div class="trust-num">40%</div><div class="trust-lbl">Gap reduction from transparency</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="demo-card">
+          <div class="demo-lbl">Live Demo - Senior Software Engineer - SF</div>
+          <div class="demo-amt">$145k - $195k</div>
+          <div class="bar-row-lbl"><span>Market Rate</span><strong>$195k</strong></div>
+          <div class="bar-track"><div class="bar-fill bar-gold" id="demoBar1"></div></div>
+          <div class="bar-row-lbl"><span>Gender-Adjusted</span><strong style="color:var(--rose)">$167k</strong></div>
+          <div class="bar-track"><div class="bar-fill bar-rose" id="demoBar2"></div></div>
+        </div>
+        <div class="gap-pill"><div class="gap-num">14.4%</div><div>Potential gap</div></div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <h2 class="cta-title">Ready to know your worth?</h2>
+      <p class="cta-sub">Run a free simulation in under 60 seconds.</p>
+      <button class="btn-white" onclick="goTo('simulation')">Start Free Simulation -&gt;</button>
+    </section>
+
+    <footer class="footer">
+      <div class="foot-logo">Fix<span>The</span>Gap</div>
+      <div class="foot-copy">(c) 2026 FixTheGap</div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
