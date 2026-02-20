@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixTheGap - Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="results">
+  <nav>
+    <div class="nav-logo">Fix<span>The</span>Gap</div>
+    <div class="nav-links">
+      <button class="nav-link" data-page="home">Home</button>
+      <button class="nav-link" data-page="simulation">Simulate</button>
+      <button class="nav-link" data-page="awareness">Learn</button>
+      <button class="nav-cta">Start Free -&gt;</button>
+    </div>
+  </nav>
+
+  <div id="results">
+    <div class="res-header"><div class="res-inner"><div id="demoTag" class="demo-tag">Demo data</div><div class="res-ey">Your Salary Insights</div><div class="res-ctx" id="resCtx"></div>
+      <div class="sal-grid">
+        <div class="sal-block"><div class="sal-lbl">Market Rate</div><div class="sal-amt" id="rMarket"></div><div class="sal-sub">Benchmark</div></div>
+        <div class="sal-block"><div class="sal-lbl">Adjusted Estimate</div><div class="sal-amt rose" id="rAdjusted"></div><div class="sal-sub">Likely offer</div></div>
+        <div class="sal-block"><div class="sal-lbl">Pay Gap</div><div class="sal-amt rose" id="rGap"></div><div class="sal-sub" id="rGapSub"></div></div>
+      </div>
+    </div></div>
+
+    <div class="res-body">
+      <div class="res-main">
+        <div id="resAlert" class="al-warn"><div class="al-title warn" id="alertTitle"></div><div class="al-body warn" id="alertBody"></div></div>
+        <div class="w-card">
+          <div class="c-title">Visual Salary Comparison</div>
+          <div class="chart-row"><div class="chart-meta"><span>Market Rate</span><strong id="cMarket"></strong></div><div class="chart-track"><div class="chart-fill cf-gold" id="cBar1"></div></div></div>
+          <div class="chart-row"><div class="chart-meta"><span>Adjusted Estimate</span><strong id="cAdjusted"></strong></div><div class="chart-track"><div class="chart-fill cf-rose" id="cBar2"></div></div></div>
+          <div class="chart-row" id="gapBarRow"><div class="chart-meta"><span>Gap Amount</span><strong id="cGap"></strong></div><div class="chart-track"><div class="chart-fill cf-pale" id="cBar3"></div></div></div>
+          <div class="pct-section"><div class="pct-title">Salary Percentile</div><div class="pct-track"><div class="pct-fill" id="pctBar"></div></div><div id="pctLabel"></div></div>
+        </div>
+      </div>
+      <div class="res-side">
+        <div class="w-card"><div class="s-label">Salary Range Context</div><div class="s-row"><span>Entry Level</span><strong id="sEntry"></strong></div><div class="s-row"><span>Industry Median</span><strong id="sMedian"></strong></div><div class="s-row"><span>Your Market Rate</span><strong id="sMarket"></strong></div><div class="s-row"><span>Senior / Executive</span><strong id="sSenior"></strong></div></div>
+        <div class="w-card" id="tipsCard"><div class="s-label">Negotiation Tips</div><div class="tip-row"><span class="tip-n">1.</span><span>Use market data as your anchor.</span></div><div class="tip-row"><span class="tip-n">2.</span><span>Ask for pay equity review.</span></div></div>
+        <div><button class="btn-fr" onclick="goTo('awareness')">Explore Guide</button><button class="btn-fo" onclick="goTo('simulation')">Run Another Simulation</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
