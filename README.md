@@ -18,8 +18,7 @@ Fathima Mehrin V S – Muthoot Institute of Technology and Science
 Hosted Project Link
 
 
-[Add your Render deployed link here]
-
+https://fix-the-ckomtzp14-fathima-mehrin-v-ss-projects.vercel.app/
 Project Description
 
 
