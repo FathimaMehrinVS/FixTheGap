@@ -41,7 +41,7 @@ if (BASE_DIR / "data").exists():
 elif (BASE_DIR.parent / "data").exists():
     DATA_DIR = BASE_DIR.parent / "data"
 else:
-    raise FileNotFoundError("data folder not found")
+    DATA_DIR = BASE_DIR / "data"
 
 # --- Load ML model ---
 params = json.load(open(MODEL_DIR / "linear_model_params.json"))
@@ -82,11 +82,17 @@ def normalize_role_for_model(selected_role: str) -> str:
         return "Machine Learning Engineer"
     return "Data Analyst"
 
-# --- Load Kaggle dataset ---
+# --- Load Kaggle dataset (optional at startup) ---
 KAGGLE_FILE = DATA_DIR / "ds_salaries.csv"
-df_salaries = pd.read_csv(KAGGLE_FILE)
-df_salaries["job_title_norm"] = df_salaries["job_title"].str.strip().str.lower()
-df_salaries["location_norm"] = df_salaries["employee_residence"].str.strip().str.lower()
+if KAGGLE_FILE.exists():
+    df_salaries = pd.read_csv(KAGGLE_FILE)
+    df_salaries["job_title_norm"] = df_salaries["job_title"].astype(str).str.strip().str.lower()
+    df_salaries["location_norm"] = df_salaries["employee_residence"].astype(str).str.strip().str.lower()
+else:
+    # Keep API bootable even if CSV is missing in deploy artifact.
+    df_salaries = pd.DataFrame(
+        columns=["job_title", "employee_residence", "salary_in_usd", "job_title_norm", "location_norm"]
+    )
 
 # --- Root endpoint ---
 @app.get("/")
@@ -110,6 +116,16 @@ def get_real_time_salary(role: str, location: str = "India"):
             raise Exception("Tavily API failed")
     except Exception:
         # --- Fallback using Kaggle dataset ---
+        if df_salaries.empty:
+            # Final fallback if CSV is unavailable in deployment.
+            return {
+                "job_title": role,
+                "location": location,
+                "average_salary": 120000,
+                "currency": "USD",
+                "source": "Static Fallback"
+            }
+
         filtered = df_salaries[
             (df_salaries["job_title_norm"] == role_norm) &
             (df_salaries["location_norm"] == location_norm)
