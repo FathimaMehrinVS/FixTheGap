@@ -1,213 +1,233 @@
- FixTheGap – Salary Transparency Simulator
+FixTheGap 🎯
 
-“Know your worth. See the gap. Close the future.”
 
-Authors: Fathima Mehrin V S & Esha Byju Nair
 
----
+Basic Details
 
-## 🚀 Project Overview
 
-FixTheGap is a Machine Learning-powered salary transparency simulator designed to raise awareness about gender pay disparities. By leveraging public datasets and predictive modeling, the app empowers individuals to understand unbiased market salaries and visualize potential gender-based pay gaps.
+Team Name: FixTheGap
 
-Hackathon Goal: Build a fully functional mobile app with a backend, ML model, and deployment within **15 hours**.
 
----
+Team Members
+Esha Byju Nair – Muthoot Institute of Technology and Science
 
-## 🌍 Problem Statement
+Fathima Mehrin V S – Muthoot Institute of Technology and Science 
 
-Salary transparency is limited, resulting in hidden gender-based compensation gaps. Without access to reliable benchmarks, individuals—especially women—may negotiate from an informational disadvantage.
 
----
 
-## 💡 Solution
+Hosted Project Link
 
-* Predicts unbiased market salary using an ML model trained on real-world data.
-* Simulates potential gender pay gap impact.
-* Provides visual comparison for easy understanding.
-* Offers educational content on the gender pay gap.
 
----
+[Add your Render deployed link here]
 
-## 🟣 System Architecture
+Project Description
 
-```
-Flutter Mobile App
-        ↓
-FastAPI Backend
-        ↓
-Trained Linear Regression Model (.pkl)
-        ↓
-Public Salary Dataset (Filtered)
-```
 
----
+FixTheGap is a web-based ML-powered salary transparency simulator that predicts unbiased market salaries using public data and simulates gender pay gap impact. It raises awareness about compensation disparities through ethical AI design and visual comparison.
 
-## 🟣 Technical Stack
+The Problem Statement
 
-**Frontend:** Flutter, HTTP package
-**Backend:** Python, FastAPI, Uvicorn
-**Machine Learning:** Pandas, Scikit-learn, Linear Regression, Joblib
-**Deployment:** Render (Free Tier)
 
----
+Salary transparency remains limited across industries, contributing to hidden gender-based compensation disparities. Without reliable benchmarks, individuals — especially women — may negotiate from an informational disadvantage.
 
-## 🧠 Machine Learning Design
+The Solution
 
-**Objective:** Predict unbiased market salary based on:
 
-* Experience Level
-* Role
-* Location
+We developed a full-stack web application that:
 
-**Feature Encoding:**
+Predicts unbiased salary using a trained ML model
 
-| Feature          | Encoding                                                   |
-| ---------------- | ---------------------------------------------------------- |
-| Experience Level | EN → 0, MI → 1, SE → 2, EX → 3                             |
-| Role             | Software Engineer → 0, Data Scientist → 1, ML Engineer → 2 |
-| Location         | Non-US → 0, US → 1                                         |
+Compares predicted salary with user’s actual income
 
-**ML Steps:**
+Simulates systemic gender pay gap impact separately
 
-1. Load CSV dataset
-2. Filter roles
-3. Encode categorical variables
-4. Split features (X) and target (y)
-5. Train Linear Regression model
-6. Save model as `salary_model.pkl`
+Clearly visualizes compensation differences
 
-**Why Linear Regression:**
+Promotes salary transparency awareness
 
-* Fast to train
-* Transparent and explainable
-* Suitable for hackathon timeframe
 
----
 
-## 🟣 Gender Pay Gap Simulation
+The system ensures ethical separation between machine learning prediction and bias simulation.
 
-* Model predicts unbiased salary.
-* If `gender == Female`, apply **8–12% reduction** to simulate systemic bias.
-* Allows ethical separation of predictions and awareness-based adjustment.
+Technical Details
 
----
 
-## 🟣 Backend API
+Technologies/Components Used
 
-**Endpoint:** `/predict`
 
-**Input Parameters:**
+For Software:
 
-* experience_level
-* role
-* location
-* gender
+Languages used: Python, HTML, CSS, JavaScript
 
-**Response:**
+Frameworks used: FastAPI
 
-```json
+Libraries used: Pandas, Scikit-learn, Joblib
+
+Tools used: VS Code, Git, Render, Uvicorn
+
+
+
+For Hardware:
+
+Not applicable (Software-only project)
+
+Features
+Unbiased Salary Prediction: ML-based salary estimation using industry, role, experience, and location
+
+Actual vs Market Comparison: Compares predicted salary with user’s actual income
+
+Gender Pay Gap Simulation: Transparent post-prediction awareness adjustment
+
+Interactive Web Interface: Multi-page HTML frontend
+
+Real-time API Integration: FastAPI backend
+
+Visual Comparison Chart: Displays predicted vs adjusted salary
+
+Educational Awareness Page: Explains gender pay gap and ethical AI design
+
+Implementation
+
+
+For Software:
+
+
+Installation
+# Clone the repository
+git clone https://github.com/your-username/fix-the-gap.git
+
+# Navigate to backend
+cd backend
+
+# Install dependencies
+pip install -r requirements.txt
+Run
+# Start FastAPI server
+uvicorn main:app --host 0.0.0.0 --port 10000
+Then open in browser:
+
+http://127.0.0.1:8000
+Frontend HTML pages are served using FastAPI templates or static hosting.
+
+Project Documentation
+
+
+For Software:
+
+
+Screenshots (Add at least 3)
+Home page introducing the project and navigation options
+
+Simulation page where users input industry, job role, location, years of experience, actual income, and gender
+
+Results page displaying predicted salary, adjusted salary, gap value, and comparison chart
+
+Diagrams
+System Architecture:
+
+User interacts with HTML frontend → Form data sent to FastAPI backend → Backend encodes features → ML model predicts salary → Gender simulation applied → Response returned → Results displayed on webpage
+
+Application Workflow:
+
+Home → Simulation Page → Submit Form → Backend Prediction → Results Display → Awareness Page
+
+Additional Documentation
+
+
+For Web Projects with Backend:
+
+
+API Documentation
+Base URL: https://your-render-app.onrender.com
+
+POST /predict
+Description: Predicts unbiased market salary based on user inputs and applies gender pay gap simulation.
+
+Request Body:
+
 {
-  "predicted_salary": 120000,
-  "gender_adjusted_salary": 108000,
-  "gap": 12000
+  "industry": "Technology",
+  "job_role": "Data Scientist",
+  "location": "US",
+  "years_of_experience": 5,
+  "actual_income": 90000,
+  "gender": "Female"
 }
-```
+Response:
 
----
+{
+  "predicted_salary": 125000,
+  "gender_adjusted_salary": 112500,
+  "gap": 12500,
+  "difference_from_actual": 35000
+}
+Response Fields Explanation
+predicted_salary → Unbiased ML-predicted market salary
 
-## 🟣 App Pages
+gender_adjusted_salary → Salary after awareness-based simulation
 
-1. **Splash Screen:** App name & tagline
-2. **Home Page:** Start simulation, Learn About Pay Gap
-3. **Simulation Input Page:** Role, Experience, Location, Gender
-4. **Results Page:** Predicted salary, Gender-adjusted salary, Gap, Comparison chart
-5. **Awareness Page:** Explanation of pay gap, model, and importance of transparency
+gap → Simulated pay gap difference
 
----
+difference_from_actual → Difference between predicted salary and user’s actual income
 
-## 🟣 Repository Structure
+Project Demo
 
-```
-salary-transparency-simulator/
-│
-├── backend/
-│   ├── raw_dataset.csv
-│   ├── cleaned_dataset.csv
-│   ├── train_model.py
-│   ├── salary_model.pkl
-│   ├── main.py
-│   ├── requirements.txt
-│
-└── frontend/
-```
 
----
+Video
 
-## ⏱ 15-Hour Hackathon Timeline
 
-| Hours | Tasks                                         |
-| ----- | --------------------------------------------- |
-| 0–1   | Notion setup, GitHub repo, download dataset   |
-| 1–3   | Filter dataset, encode features, save CSV     |
-| 3–4   | Train ML model, save `.pkl`, test predictions |
-| 4–6   | Build FastAPI backend, test Swagger endpoints |
-| 6–10  | Flutter UI development                        |
-| 10–12 | Connect Flutter to backend, debug             |
-| 12–14 | Deploy backend on Render, update API URL      |
-| 14–15 | UI polish, demo prep, README documentation    |
+[Add your demo video link here]
 
----
 
-## 🟣 Deployment
 
-**Backend:** Render Free Tier
+Demonstrates full workflow from input form to pay gap visualization and salary comparison.
 
-**Steps:**
+AI Tools Used (Transparency Section)
 
-1. Push backend to GitHub
-2. Connect Render to repo
-3. Build command: `pip install -r requirements.txt`
-4. Start command: `uvicorn main:app --host 0.0.0.0 --port 10000`
-5. Update Flutter app API endpoint
 
----
+Tool Used: ChatGPT
 
-## 🟣 Demo Narrative
 
-1. Introduce salary opacity problem
-2. Show dataset and ML prediction
-3. Demonstrate gender-adjusted salary simulation
-4. Highlight awareness and social impact
-5. Showcase full-stack mobile implementation
 
----
+Purpose:
 
-## 🌱 Future Scope
+Backend architecture planning
 
-* Expand job roles
-* Crowd-sourced salary inputs
-* Analytics dashboard
-* Regional filtering
-* Fair-pay insights
+ML pipeline structuring
 
----
+Documentation refinement
 
-## ✅ Success Criteria
+Debugging assistance
 
-* ML model trained successfully
-* Backend deployed and accessible
-* Flutter app connected to API
-* Clean and intuitive UI
-* Clear demo explanation
 
----
 
-## 🟣 Key Differentiators
+Percentage of AI-generated code: Minimal boilerplate guidance
 
-* Real public dataset integration
-* Separation of unbiased prediction and systemic gap simulation
-* Full-stack mobile application
-* Social impact focus
-* Deployable prototype within hackathon constraints
+
+
+Human Contributions:
+
+Architecture design
+
+Dataset preprocessing and filtering
+
+ML model training and validation
+
+Backend API implementation
+
+HTML/CSS frontend development
+
+Integration and deployment
+
+Team Contributions
+Esha Byju Nair: Frontend development (HTML/CSS/JS), UI design, API integration
+
+Fathima Mehrin V S: Backend development, ML model training, API design, deployment
+
+License
+
+
+This project is licensed under the MIT License.
+
+Made with ❤️ at TinkerHub Hackathon
 
