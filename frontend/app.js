@@ -76,11 +76,7 @@ const fmt = (n) => '$' + Number(n).toLocaleString();
 const API_BASE = window.FTG_API_BASE || 'http://127.0.0.1:8000';
 
 function mapRoleToBackend(role) {
-  const r = (role || '').toLowerCase();
-  if (r.includes('data scientist')) return 'Data Scientist';
-  if (r.includes('ml') || r.includes('machine learning')) return 'Machine Learning Engineer';
-  if (r.includes('data')) return 'Data Analyst';
-  return 'Data Analyst';
+  return (role || '').trim();
 }
 
 function mapGenderToBackend(gender) {
@@ -89,7 +85,10 @@ function mapGenderToBackend(gender) {
 
 function mapLocationToBackend(location) {
   if (!location) return 'US';
-  if (location.includes('(US)')) return 'US';
+  // Prefer direct ISO-2 country codes from dropdown values.
+  if (/^[A-Z]{2}$/.test(location)) return location;
+  const codeMatch = location.match(/\(([A-Z]{2})\)$/);
+  if (codeMatch) return codeMatch[1];
   return 'US';
 }
 
@@ -144,36 +143,93 @@ function setSubmitting(isSubmitting) {
 }
 
 async function runSimulation() {
-  const payload = {
-    role: document.getElementById('fRole').value,
-    location: document.getElementById('fLocation').value,
-    industry: document.getElementById('fIndustry').value,
-    experience: document.getElementById('fExp').value,
-    gender: document.getElementById('fGender').value
-  };
+  const role = document.getElementById('fRole')?.value?.trim() || '';
+  const locationRaw = document.getElementById('fLocation')?.value?.trim() || '';
+  const industry = document.getElementById('fIndustry')?.value?.trim() || '';
+  const experience = document.getElementById('fExp')?.value?.trim() || '';
+  const gender = document.getElementById('fGender')?.value?.trim() || '';
+  const actualSalaryRaw = document.getElementById('fActualSalary')?.value?.trim() || '';
+  const actualSalaryNum = Number(actualSalaryRaw);
+  const actualSalary = Number.isFinite(actualSalaryNum) && actualSalaryNum > 0 ? actualSalaryNum : null;
+  const location = mapLocationToBackend(locationRaw);
+
+  const params = new URLSearchParams({
+    gender: mapGenderToBackend(gender),
+    role,
+    experience,
+    location
+  });
 
   try {
     setSubmitting(true);
-    const apiData = await fetchPrediction(payload);
-    payload.result = apiData.result;
-    payload.apiSource = apiData.source;
-    payload.backendRole = apiData.backendRole;
+    const res = await fetch(`${API_BASE}/predict?${params.toString()}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' }
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    if (data.error) {
+      console.error('Backend error:', data.error);
+      sessionStorage.setItem('ftgResults', JSON.stringify({ error: String(data.error) }));
+      sessionStorage.setItem(
+        'ftgForm',
+        JSON.stringify({
+          role,
+          location: locationRaw || location,
+          industry,
+          experience,
+          gender,
+          actualSalary
+        })
+      );
+      goTo('results');
+      return;
+    }
+
+    // Store full backend response exactly as requested.
+    sessionStorage.setItem('ftgResults', JSON.stringify(data));
+    // Store form context separately for results page labels/context line.
+    sessionStorage.setItem(
+      'ftgForm',
+      JSON.stringify({
+        role,
+        location: locationRaw || location,
+        industry,
+        experience,
+        gender,
+        actualSalary
+      })
+    );
+
+    goTo('results');
   } catch (err) {
-    payload.result = computeSalary(payload.role, payload.location, payload.experience, payload.gender);
-    payload.apiSource = 'Local fallback';
-    payload.backendRole = null;
-    console.error('Simulation API call failed, used fallback:', err);
+    console.error('runSimulation network error:', err);
+    sessionStorage.setItem('ftgResults', JSON.stringify({ error: 'Could not reach backend. Please try again.' }));
+    sessionStorage.setItem(
+      'ftgForm',
+      JSON.stringify({
+        role,
+        location: locationRaw || location,
+        industry,
+        experience,
+        gender,
+        actualSalary
+      })
+    );
+    goTo('results');
   } finally {
     setSubmitting(false);
   }
-
-  sessionStorage.setItem('ftgResults', JSON.stringify(payload));
-  goTo('results');
 }
 
 let resultsData = null;
 
-function renderResults(role, location, industry, experience, r, isDemo, apiSource) {
+function renderResults(role, location, industry, experience, r, isDemo, apiSource, actualSalary) {
   resultsData = r;
   document.getElementById('demoTag').style.display = isDemo ? 'inline-block' : 'none';
   const ctx = apiSource ? `${role} - ${location} - ${experience} yrs - ${industry} - Source: ${apiSource}` : `${role} - ${location} - ${experience} yrs - ${industry}`;
@@ -183,8 +239,8 @@ function renderResults(role, location, industry, experience, r, isDemo, apiSourc
 
   const hasGap = r.diff > 2000;
   if (hasGap) {
-    document.getElementById('rGap').textContent = `-${r.gapPct}%`;
-    document.getElementById('rGapSub').textContent = `~ ${fmt(r.diff)} less/yr`;
+    document.getElementById('rGap').textContent = r.gapPctDisplay || `-${r.gapPct}%`;
+    document.getElementById('rGapSub').textContent = r.gapSubText || `~ ${fmt(r.diff)} less/yr`;
     document.getElementById('rGap').className = 'sal-amt rose';
     document.getElementById('rAdjusted').className = 'sal-amt rose';
   } else {
@@ -210,6 +266,14 @@ function renderResults(role, location, industry, experience, r, isDemo, apiSourc
   document.getElementById('sEntry').textContent = fmt(Math.round(r.market * 0.66));
   document.getElementById('sMedian').textContent = fmt(Math.round(r.market * 0.85));
   document.getElementById('sMarket').textContent = fmt(r.market);
+  const actualRow = document.getElementById('sActualRow');
+  const actualVal = Number(actualSalary);
+  if (actualRow && Number.isFinite(actualVal) && actualVal > 0) {
+    actualRow.style.display = 'flex';
+    document.getElementById('sActual').textContent = fmt(actualVal);
+  } else if (actualRow) {
+    actualRow.style.display = 'none';
+  }
   document.getElementById('sSenior').textContent = fmt(Math.round(r.market * 1.38));
   document.getElementById('tipsCard').style.display = hasGap ? 'block' : 'none';
   const adjPct = Math.round((r.adjusted / r.market) * 100);
@@ -259,7 +323,77 @@ function initResults() {
   const stored = sessionStorage.getItem('ftgResults');
   if (stored) {
     const data = JSON.parse(stored);
-    renderResults(data.role, data.location, data.industry, data.experience, data.result, false, data.apiSource);
+    const storedForm = sessionStorage.getItem('ftgForm');
+    const form = storedForm
+      ? JSON.parse(storedForm)
+      : { role: 'Role', location: 'Location', industry: 'Industry', experience: 0 };
+
+    // Explicit error payload path from simulation API.
+    if (Object.prototype.hasOwnProperty.call(data, 'error')) {
+      const fallback = { market: 0, adjusted: 0, diff: 0, gapPct: '0.0' };
+      renderResults(
+        form.role,
+        form.location,
+        form.industry,
+        form.experience,
+        fallback,
+        false,
+        'API',
+        form.actualSalary
+      );
+      document.getElementById('alertTitle').textContent = 'Prediction Error';
+      document.getElementById('alertBody').textContent = String(data.error);
+      return;
+    }
+
+    // Support full backend response format.
+    if (Object.prototype.hasOwnProperty.call(data, 'predicted_salary')) {
+      const predicted = Number(data.predicted_salary) || 0;
+      const adjusted = Number(data.gender_adjusted_salary) || predicted;
+      const payGap = Number(data.pay_gap);
+      const fallbackDiff = Number.isFinite(payGap) ? payGap : Math.max(predicted - adjusted, 0);
+      const marketFromApi = Number(data?.tavily_data?.average_salary);
+      const market = Number.isFinite(marketFromApi) && marketFromApi > 0 ? marketFromApi : predicted;
+      const actualSalary = Number(form?.actualSalary);
+      let diff = fallbackDiff;
+      let gapPct = predicted > 0 ? ((diff / predicted) * 100).toFixed(1) : '0.0';
+      let gapPctDisplay = null;
+      let gapSubText = null;
+
+      // If user provided actual salary, use actual-vs-predicted pay gap.
+      if (Number.isFinite(actualSalary) && actualSalary > 0 && predicted > 0) {
+        const pctActual = ((actualSalary - predicted) / predicted) * 100;
+        const diffActual = actualSalary - predicted;
+        diff = Math.abs(diffActual);
+        gapPct = Math.abs(pctActual).toFixed(1);
+        gapPctDisplay = `${pctActual.toFixed(1)}%`;
+        gapSubText = `~ ${fmt(Math.abs(diffActual))} ${diffActual < 0 ? 'below' : 'above'} predicted`;
+      }
+
+      const normalized = { market, adjusted, diff, gapPct, gapPctDisplay, gapSubText };
+      renderResults(
+        form.role,
+        form.location,
+        form.industry,
+        form.experience,
+        normalized,
+        false,
+        data?.tavily_data?.source || 'API',
+        form.actualSalary
+      );
+    } else {
+      // Backward compatibility with earlier payload format.
+      renderResults(
+        data.role,
+        data.location,
+        data.industry,
+        data.experience,
+        data.result,
+        false,
+        data.apiSource,
+        form.actualSalary
+      );
+    }
   } else {
     renderResults(
       'Senior Software Engineer',
@@ -268,6 +402,7 @@ function initResults() {
       7,
       { market: 195000, adjusted: 167000, diff: 28000, gapPct: '14.4' },
       true,
+      null,
       null
     );
   }
