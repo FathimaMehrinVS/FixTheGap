@@ -14,7 +14,7 @@
     <div class="nav-links">
       <button class="nav-link" data-page="home">Home</button>
       <button class="nav-link" data-page="simulation">Simulate</button>
-      <button class="nav-link" data-page="awareness">Learn</button>
+      <button class="nav-link" data-page="awareness">About</button>
       <button class="nav-cta">Start Free -&gt;</button>
     </div>
   </nav>
@@ -41,34 +41,104 @@
             <label class="f-label" for="fRole">Job Role</label>
             <select class="f-select" id="fRole">
               <option value="">Select your role...</option>
-              <option>Software Engineer</option>
-              <option>Senior Software Engineer</option>
-              <option>Staff Engineer</option>
-              <option>Principal Engineer</option>
-              <option>Product Manager</option>
-              <option>Senior PM</option>
+              <option>3D Computer Vision Researcher</option>
+              <option>AI Scientist</option>
+              <option>Applied Data Scientist</option>
+              <option>Applied Machine Learning Scientist</option>
+              <option>BI Data Analyst</option>
+              <option>Big Data Architect</option>
+              <option>Big Data Engineer</option>
+              <option>Business Data Analyst</option>
+              <option>Cloud Data Engineer</option>
+              <option>Computer Vision Engineer</option>
+              <option>Computer Vision Software Engineer</option>
+              <option>Data Analyst</option>
+              <option>Data Analytics Engineer</option>
+              <option>Data Analytics Lead</option>
+              <option>Data Architect</option>
+              <option>Data Engineer</option>
+              <option>Data Science Consultant</option>
+              <option>Data Science Engineer</option>
+              <option>Data Science Manager</option>
               <option>Data Scientist</option>
+              <option>Data Specialist</option>
+              <option>Director of Data Science</option>
+              <option>Finance Data Analyst</option>
+              <option>Financial Data Analyst</option>
+              <option>Head of Data</option>
+              <option>Head of Data Science</option>
+              <option>Lead Data Scientist</option>
+              <option>Lead Machine Learning Engineer</option>
+              <option>Machine Learning Developer</option>
+              <option>Machine Learning Engineer</option>
+              <option>Machine Learning Infrastructure Engineer</option>
+              <option>Machine Learning Manager</option>
+              <option>Machine Learning Scientist</option>
+              <option>Marketing Data Analyst</option>
               <option>ML Engineer</option>
-              <option>UX Designer</option>
-              <option>Engineering Manager</option>
-              <option>Director of Engineering</option>
-              <option>CTO / VP Engineering</option>
+              <option>Principal Data Analyst</option>
+              <option>Principal Data Engineer</option>
+              <option>Principal Data Scientist</option>
+              <option>Product Data Analyst</option>
+              <option>Research Scientist</option>
+              <option>Staff Data Scientist</option>
             </select>
           </div>
 
           <div class="f-field">
             <label class="f-label" for="fLocation">Location</label>
             <select class="f-select" id="fLocation">
-              <option value="">Select city...</option>
-              <option>San Francisco, CA</option>
-              <option>New York, NY</option>
-              <option>Seattle, WA</option>
-              <option>Austin, TX</option>
-              <option>Boston, MA</option>
-              <option>Chicago, IL</option>
-              <option>Los Angeles, CA</option>
-              <option>Denver, CO</option>
-              <option>Remote (US)</option>
+              <option value="">Select location...</option>
+              <option value="AL">Albania (AL)</option>
+              <option value="DZ">Algeria (DZ)</option>
+              <option value="AS">American Samoa (AS)</option>
+              <option value="AR">Argentina (AR)</option>
+              <option value="AM">Armenia (AM)</option>
+              <option value="AU">Australia (AU)</option>
+              <option value="BO">Bolivia (BO)</option>
+              <option value="BA">Bosnia and Herzegovina (BA)</option>
+              <option value="BR">Brazil (BR)</option>
+              <option value="CA">Canada (CA)</option>
+              <option value="CF">Central African Republic (CF)</option>
+              <option value="CL">Chile (CL)</option>
+              <option value="CN">China (CN)</option>
+              <option value="CZ">Czech Republic (CZ)</option>
+              <option value="DK">Denmark (DK)</option>
+              <option value="EE">Estonia (EE)</option>
+              <option value="FI">Finland (FI)</option>
+              <option value="FR">France (FR)</option>
+              <option value="DE">Germany (DE)</option>
+              <option value="GR">Greece (GR)</option>
+              <option value="HK">Hong Kong (HK)</option>
+              <option value="HN">Honduras (HN)</option>
+              <option value="IN">India (IN)</option>
+              <option value="IR">Iran (IR)</option>
+              <option value="IQ">Iraq (IQ)</option>
+              <option value="IL">Israel (IL)</option>
+              <option value="IT">Italy (IT)</option>
+              <option value="JP">Japan (JP)</option>
+              <option value="KE">Kenya (KE)</option>
+              <option value="LV">Latvia (LV)</option>
+              <option value="MT">Malta (MT)</option>
+              <option value="MX">Mexico (MX)</option>
+              <option value="MD">Moldova (MD)</option>
+              <option value="NL">Netherlands (NL)</option>
+              <option value="NZ">New Zealand (NZ)</option>
+              <option value="NG">Nigeria (NG)</option>
+              <option value="MK">North Macedonia (MK)</option>
+              <option value="PK">Pakistan (PK)</option>
+              <option value="PH">Philippines (PH)</option>
+              <option value="PT">Portugal (PT)</option>
+              <option value="RO">Romania (RO)</option>
+              <option value="RU">Russia (RU)</option>
+              <option value="SG">Singapore (SG)</option>
+              <option value="ES">Spain (ES)</option>
+              <option value="SE">Sweden (SE)</option>
+              <option value="CH">Switzerland (CH)</option>
+              <option value="TH">Thailand (TH)</option>
+              <option value="UA">Ukraine (UA)</option>
+              <option value="GB">United Kingdom (GB)</option>
+              <option value="US">United States (US)</option>
             </select>
           </div>
 
@@ -96,6 +166,11 @@
           </div>
 
           <div class="f-field full">
+            <label class="f-label" for="fActualSalary">Actual Salary</label>
+            <input class="f-input" id="fActualSalary" type="number" min="0" step="1000" placeholder="Your Current Salary" />
+          </div>
+
+          <div class="f-field full">
             <label class="f-label" for="fGender">Gender <span class="f-hint">(optional - helps reveal pay gap)</span></label>
             <select class="f-select" id="fGender">
               <option value="">Prefer not to say</option>
@@ -115,3 +190,5 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
