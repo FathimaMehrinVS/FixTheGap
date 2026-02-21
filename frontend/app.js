@@ -1,5 +1,7 @@
 ﻿function goTo(page) {
-  window.location.href = page + '.html';
+  const current = window.location.pathname || '/';
+  const base = current.endsWith('/') ? current : current.substring(0, current.lastIndexOf('/') + 1);
+  window.location.assign(`${base}${page}.html`);
 }
 
 function initNav(activePage) {
@@ -25,11 +27,7 @@ function animateHome() {
 }
 
 function checkForm() {
-  const role = document.getElementById('fRole')?.value;
-  const location = document.getElementById('fLocation')?.value;
-  const industry = document.getElementById('fIndustry')?.value;
-  const btn = document.getElementById('submitBtn');
-  if (btn) btn.disabled = !(role && location && industry);
+  // Keep this hook for future inline validation; do not block submit.
 }
 
 function computeSalary(role, location, experience, gender) {
@@ -142,6 +140,14 @@ function setSubmitting(isSubmitting) {
   submit.textContent = isSubmitting ? 'Calculating...' : 'Calculate My Worth ↗';
 }
 
+function safeSetSession(key, value) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.error(`sessionStorage write failed for ${key}:`, e);
+  }
+}
+
 async function runSimulation() {
   const role = document.getElementById('fRole')?.value?.trim() || '';
   const locationRaw = document.getElementById('fLocation')?.value?.trim() || '';
@@ -153,6 +159,20 @@ async function runSimulation() {
   const actualSalary = Number.isFinite(actualSalaryNum) && actualSalaryNum > 0 ? actualSalaryNum : null;
   const location = mapLocationToBackend(locationRaw);
 
+  if (!role || !locationRaw || !industry) {
+    safeSetSession('ftgResults', { error: 'Please select Job Role, Location, and Industry.' });
+    safeSetSession('ftgForm', {
+      role,
+      location: locationRaw || location,
+      industry,
+      experience,
+      gender,
+      actualSalary
+    });
+    goTo('results');
+    return;
+  }
+
   const params = new URLSearchParams({
     gender: mapGenderToBackend(gender),
     role,
@@ -162,10 +182,14 @@ async function runSimulation() {
 
   try {
     setSubmitting(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(`${API_BASE}/predict?${params.toString()}`, {
       method: 'GET',
-      headers: { Accept: 'application/json' }
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
@@ -175,72 +199,79 @@ async function runSimulation() {
 
     if (data.error) {
       console.error('Backend error:', data.error);
-      sessionStorage.setItem('ftgResults', JSON.stringify({ error: String(data.error) }));
-      sessionStorage.setItem(
-        'ftgForm',
-        JSON.stringify({
-          role,
-          location: locationRaw || location,
-          industry,
-          experience,
-          gender,
-          actualSalary
-        })
-      );
+      safeSetSession('ftgResults', { error: String(data.error) });
+      safeSetSession('ftgForm', {
+        role,
+        location: locationRaw || location,
+        industry,
+        experience,
+        gender,
+        actualSalary
+      });
       goTo('results');
       return;
     }
 
     // Store full backend response exactly as requested.
-    sessionStorage.setItem('ftgResults', JSON.stringify(data));
+    safeSetSession('ftgResults', data);
     // Store form context separately for results page labels/context line.
-    sessionStorage.setItem(
-      'ftgForm',
-      JSON.stringify({
-        role,
-        location: locationRaw || location,
-        industry,
-        experience,
-        gender,
-        actualSalary
-      })
-    );
+    safeSetSession('ftgForm', {
+      role,
+      location: locationRaw || location,
+      industry,
+      experience,
+      gender,
+      actualSalary
+    });
 
     goTo('results');
   } catch (err) {
-    console.error('runSimulation network error:', err);
-    sessionStorage.setItem('ftgResults', JSON.stringify({ error: 'Could not reach backend. Please try again.' }));
-    sessionStorage.setItem(
-      'ftgForm',
-      JSON.stringify({
-        role,
-        location: locationRaw || location,
-        industry,
-        experience,
-        gender,
-        actualSalary
-      })
-    );
+    console.error('runSimulation network/timeout error:', err);
+    safeSetSession('ftgResults', { error: 'Could not reach backend. Please try again.' });
+    safeSetSession('ftgForm', {
+      role,
+      location: locationRaw || location,
+      industry,
+      experience,
+      gender,
+      actualSalary
+    });
     goTo('results');
   } finally {
     setSubmitting(false);
+    // Last-resort redirect guard: if still on simulation, push to results.
+    if (window.location.pathname.toLowerCase().includes('simulation')) {
+      setTimeout(() => {
+        if (window.location.pathname.toLowerCase().includes('simulation')) {
+          goTo('results');
+        }
+      }, 50);
+    }
   }
 }
 
 let resultsData = null;
 
 function renderResults(role, location, industry, experience, r, isDemo, apiSource, actualSalary) {
-  resultsData = r;
+  const safe = {
+    market: Number(r?.market) || 0,
+    adjusted: Number(r?.adjusted) || 0,
+    diff: Number(r?.diff) || 0,
+    gapPct: r?.gapPct ?? '0.0',
+    gapPctDisplay: r?.gapPctDisplay ?? null,
+    gapSubText: r?.gapSubText ?? null
+  };
+  resultsData = safe;
   document.getElementById('demoTag').style.display = isDemo ? 'inline-block' : 'none';
   const ctx = apiSource ? `${role} - ${location} - ${experience} yrs - ${industry} - Source: ${apiSource}` : `${role} - ${location} - ${experience} yrs - ${industry}`;
   document.getElementById('resCtx').textContent = ctx;
-  document.getElementById('rMarket').textContent = fmt(r.market);
-  document.getElementById('rAdjusted').textContent = fmt(r.adjusted);
+  document.getElementById('rMarket').textContent = fmt(safe.market);
+  document.getElementById('rAdjusted').textContent = fmt(safe.adjusted);
 
-  const hasGap = r.diff > 2000;
+  const hasGap = safe.diff > 2000;
   if (hasGap) {
-    document.getElementById('rGap').textContent = r.gapPctDisplay || `-${r.gapPct}%`;
-    document.getElementById('rGapSub').textContent = r.gapSubText || `~ ${fmt(r.diff)} less/yr`;
+    document.getElementById('rGap').textContent = safe.gapPctDisplay || `-${safe.gapPct}%`;
+    document.getElementById('rGapSub').textContent = safe.gapSubText || `~ ${fmt(safe.diff)} less/yr`;
     document.getElementById('rGap').className = 'sal-amt rose';
     document.getElementById('rAdjusted').className = 'sal-amt rose';
   } else {
@@ -255,17 +286,17 @@ function renderResults(role, location, industry, experience, r, isDemo, apiSourc
   document.getElementById('alertTitle').textContent = hasGap ? `${r.gapPct}% Pay Gap Detected` : 'No Significant Gap Detected';
   document.getElementById('alertTitle').className = `al-title ${hasGap ? 'warn' : 'ok'}`;
   document.getElementById('alertBody').textContent = hasGap
-    ? `Based on your role, location, and ${experience} years of experience, you may be earning approximately ${fmt(r.diff)} less per year than your male counterpart in ${location}.`
+    ? `Based on your role, location, and ${experience} years of experience, you may be earning approximately ${fmt(safe.diff)} less per year than your male counterpart in ${location}.`
     : 'Your estimated salary aligns with market benchmarks for your role and location.';
   document.getElementById('alertBody').className = `al-body ${hasGap ? 'warn' : 'ok'}`;
 
-  document.getElementById('cMarket').textContent = fmt(r.market);
-  document.getElementById('cAdjusted').textContent = fmt(r.adjusted);
-  document.getElementById('cGap').textContent = fmt(r.diff);
+  document.getElementById('cMarket').textContent = fmt(safe.market);
+  document.getElementById('cAdjusted').textContent = fmt(safe.adjusted);
+  document.getElementById('cGap').textContent = fmt(safe.diff);
   document.getElementById('gapBarRow').style.display = hasGap ? 'flex' : 'none';
-  document.getElementById('sEntry').textContent = fmt(Math.round(r.market * 0.66));
-  document.getElementById('sMedian').textContent = fmt(Math.round(r.market * 0.85));
-  document.getElementById('sMarket').textContent = fmt(r.market);
+  document.getElementById('sEntry').textContent = fmt(Math.round(safe.market * 0.66));
+  document.getElementById('sMedian').textContent = fmt(Math.round(safe.market * 0.85));
+  document.getElementById('sMarket').textContent = fmt(safe.market);
   const actualRow = document.getElementById('sActualRow');
   const actualVal = Number(actualSalary);
   if (actualRow && Number.isFinite(actualVal) && actualVal > 0) {
@@ -274,18 +305,18 @@ function renderResults(role, location, industry, experience, r, isDemo, apiSourc
   } else if (actualRow) {
     actualRow.style.display = 'none';
   }
-  document.getElementById('sSenior').textContent = fmt(Math.round(r.market * 1.38));
+  document.getElementById('sSenior').textContent = fmt(Math.round(safe.market * 1.38));
   document.getElementById('tipsCard').style.display = hasGap ? 'block' : 'none';
-  const adjPct = Math.round((r.adjusted / r.market) * 100);
+  const adjPct = safe.market > 0 ? Math.round((safe.adjusted / safe.market) * 100) : 0;
   const pctile = Math.round(adjPct * 0.6);
-  document.getElementById('pctLabel').textContent = `You ~ ${pctile}th percentile`;
+  document.getElementById('pctLabel').textContent = safe.market > 0 ? `You ~ ${pctile}th percentile` : 'You ~ N/A percentile';
 }
 
 function animateResults() {
   if (!resultsData) return;
   const r = resultsData;
-  const adjPct = Math.round((r.adjusted / r.market) * 100);
-  const gapPct = Math.round((r.diff / r.market) * 100);
+  const adjPct = r.market > 0 ? Math.round((r.adjusted / r.market) * 100) : 0;
+  const gapPct = r.market > 0 ? Math.round((r.diff / r.market) * 100) : 0;
   const pctile = Math.round(adjPct * 0.6);
   setTimeout(() => {
     document.getElementById('cBar1').style.width = '100%';
@@ -310,13 +341,22 @@ function initSimulation() {
   const range = document.getElementById('fExp');
   const expVal = document.getElementById('expVal');
   const submit = document.getElementById('submitBtn');
+  if (!range || !expVal || !submit) return;
+  submit.type = 'button';
+  submit.disabled = false;
   range.addEventListener('input', () => {
     expVal.textContent = range.value;
   });
   ['fRole', 'fLocation', 'fIndustry'].forEach((id) =>
     document.getElementById(id).addEventListener('change', checkForm)
   );
-  submit.addEventListener('click', runSimulation);
+  if (!submit.dataset.bound) {
+    submit.dataset.bound = '1';
+    submit.addEventListener('click', (e) => {
+      e.preventDefault();
+      runSimulation();
+    });
+  }
 }
 
 function initResults() {
@@ -417,3 +457,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (page === 'simulation') initSimulation();
   if (page === 'results') initResults();
 });
+
+
+
+
+
