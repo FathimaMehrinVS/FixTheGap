@@ -13,7 +13,14 @@ import pathlib
 
 # --- FastAPI app ---
 app = FastAPI(title="FixTheGap – Salary Transparency Simulator")
+from fastapi.middleware.cors import CORSMiddleware
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allows requests from any frontend
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # --- Load environment variables ---
 load_dotenv()
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
@@ -36,6 +43,31 @@ le_gender.classes_ = np.array(json.load(open(MODEL_DIR / "gender_encoder.json"))
 
 le_role = LabelEncoder()
 le_role.classes_ = np.array(json.load(open(MODEL_DIR / "role_encoder.json"))["classes"])
+
+VALID_ROLES = {
+    "Machine Learning Engineer", "Data Engineer", "Machine Learning Developer",
+    "Machine Learning Manager", "Director of Data Science", "Business Data Analyst",
+    "Machine Learning Infrastructure Engineer", "Applied Machine Learning Scientist",
+    "Applied Data Scientist", "Computer Vision Engineer", "Data Analyst", "Head of Data",
+    "Research Scientist", "Machine Learning Scientist", "Principal Data Analyst",
+    "Product Data Analyst", "Data Science Manager", "Data Analytics Lead",
+    "Data Analytics Engineer", "Principal Data Scientist", "ML Engineer",
+    "Computer Vision Software Engineer", "Financial Data Analyst", "Lead Data Scientist",
+    "Lead Machine Learning Engineer", "Principal Data Engineer", "Big Data Engineer",
+    "Data Architect", "BI Data Analyst", "Data Science Consultant", "Head of Data Science",
+    "Data Science Engineer", "AI Scientist", "3D Computer Vision Researcher",
+    "Marketing Data Analyst", "Cloud Data Engineer", "Big Data Architect",
+    "Staff Data Scientist", "Data Specialist", "Finance Data Analyst"
+}
+
+
+def normalize_role_for_model(selected_role: str) -> str:
+    role = selected_role.strip().lower()
+    if "scientist" in role:
+        return "Data Scientist"
+    if "machine learning" in role or role == "ml engineer":
+        return "Machine Learning Engineer"
+    return "Data Analyst"
 
 # --- Load Kaggle dataset ---
 KAGGLE_FILE = DATA_DIR / "ds_salaries.csv"
@@ -87,14 +119,14 @@ def get_real_time_salary(role: str, location: str = "India"):
 def predict_salary(
     gender: str = Query(...),
     role: str = Query(...),
-    experience: int = Query(...),
-    location: str = Query("India")
+    experience: int = Query(..., ge=0, le=60),
+    location: str = Query(..., min_length=2, max_length=3)
 ):
     try:
         # --- Normalize inputs ---
         gender_input = gender.strip().lower()
-        role_input = role.strip().lower()
-        location_input = location.strip()
+        role_input = role.strip()
+        location_input = location.strip().upper()
 
         # --- Map to encoder classes ---
         gender_map = {c.lower(): c for c in le_gender.classes_}
@@ -102,10 +134,9 @@ def predict_salary(
             return {"error": f"Unknown gender: {gender}. Allowed: {list(le_gender.classes_)}"}
         gender_val = gender_map[gender_input]
 
-        role_map = {c.lower(): c for c in le_role.classes_}
-        if role_input not in role_map:
-            return {"error": f"Unknown role: {role}. Allowed: {list(le_role.classes_)}"}
-        role_val = role_map[role_input]
+        if role_input not in VALID_ROLES:
+            return {"error": f"Unknown role: {role}. Allowed: {sorted(VALID_ROLES)}"}
+        role_val = normalize_role_for_model(role_input)
 
         # --- Encode features and predict ML salary ---
         gender_encoded = le_gender.transform([gender_val])[0]
