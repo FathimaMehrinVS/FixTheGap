@@ -26,9 +26,22 @@ load_dotenv()
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 # --- Paths ---
-BASE_DIR = pathlib.Path(__file__).parent  # app/
-MODEL_DIR = BASE_DIR / "models_safe"
-DATA_DIR = BASE_DIR.parent / "data"  # Assuming CSV is in FixTheGap/data/
+BASE_DIR = pathlib.Path(__file__).parent  # FixTheGap/
+
+# Support running main.py from repo root while keeping assets under app/.
+if (BASE_DIR / "models_safe").exists():
+    MODEL_DIR = BASE_DIR / "models_safe"
+elif (BASE_DIR / "app" / "models_safe").exists():
+    MODEL_DIR = BASE_DIR / "app" / "models_safe"
+else:
+    raise FileNotFoundError("models_safe folder not found in root or app/")
+
+if (BASE_DIR / "data").exists():
+    DATA_DIR = BASE_DIR / "data"
+elif (BASE_DIR.parent / "data").exists():
+    DATA_DIR = BASE_DIR.parent / "data"
+else:
+    raise FileNotFoundError("data folder not found")
 
 # --- Load ML model ---
 params = json.load(open(MODEL_DIR / "linear_model_params.json"))
