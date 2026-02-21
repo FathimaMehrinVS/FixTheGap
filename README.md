@@ -117,13 +117,17 @@ For Software:
 
 Screenshots (Add at least 3)
 Home page introducing the project and navigation options
+<img width="1875" height="959" alt="image" src="https://github.com/user-attachments/assets/4d6d5b6c-7689-4adb-a656-de7e67f2b5e6" />
 
 Simulation page where users input industry, job role, location, years of experience, actual income, and gender
+<img width="1843" height="965" alt="image" src="https://github.com/user-attachments/assets/35a89485-b062-4ef9-bba8-4623a45c702c" />
 
 Results page displaying predicted salary, adjusted salary, gap value, and comparison chart
+<img width="1878" height="973" alt="image" src="https://github.com/user-attachments/assets/c9d4e4a7-62b3-4257-9d0b-d92d993f97ad" />
 
 Diagrams
 System Architecture:
+<img width="873" height="791" alt="image" src="https://github.com/user-attachments/assets/07713e6b-ee68-4be6-8276-d9839c8a0da0" />
 
 User interacts with HTML frontend → Form data sent to FastAPI backend → Backend encodes features → ML model predicts salary → Gender simulation applied → Response returned → Results displayed on webpage
 
